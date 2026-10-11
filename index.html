@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemcutting Value Calculator</title>
+<style>
+:root{color-scheme:dark}body{font-family:system-ui,Arial,sans-serif;background:#17191e;color:#f1f1f1;padding:30px}.calculator{max-width:450px;margin:30px auto;background:#24272e;padding:24px;border:1px solid #444;border-radius:12px}h2{margin-top:0}label{display:block;margin:15px 0 6px;color:#c5c5c5}input[type=number]{width:100%;box-sizing:border-box;padding:10px;border-radius:6px;border:1px solid #666;background:#181a20;color:white;font-size:16px}input[type=range]{width:100%}.dc-controls{display:flex;align-items:center;gap:15px}button{background:#3b4050;color:white;border:1px solid #666;border-radius:6px;padding:8px 16px;cursor:pointer}.result{margin-top:24px;border-top:1px solid #555;padding-top:20px}.quality{font-size:22px;font-weight:bold}.bonus,.price{font-size:26px;font-weight:bold}.bonus{color:#72d6a0}.muted{font-size:13px;color:#aaa}
+</style></head><body><main class="calculator"><h2>Gemcutting Value Calculator</h2>
+<label for="base">Base value (sp)</label><input id="base" type="number" value="20" min="0" step="0.01">
+<label>Craft DC</label><div class="dc-controls"><button id="minus" type="button">−</button><strong id="dcDisplay">15</strong><button id="plus" type="button">+</button></div>
+<label for="roll">Craft check total: <strong id="rollDisplay">25</strong></label><input id="roll" type="range" min="1" max="60" value="25">
+<div class="result"><div class="muted">Resulting quality</div><div class="quality" id="quality"></div><br><div class="muted">Value increase</div><div class="bonus" id="bonus"></div><br><div class="muted">Final gemstone value</div><div class="price" id="price"></div></div></main>
+<script>
+let dc=15;
+const baseInput=document.getElementById('base'),rollInput=document.getElementById('roll');
+function changeDC(amount){dc=Math.max(5,Math.min(50,dc+amount));document.getElementById('dcDisplay').textContent=dc;calculate()}
+function formatCurrency(sp){let cp=Math.round(sp*100);const pp=Math.floor(cp/1000000);cp%=1000000;const gp=Math.floor(cp/10000);cp%=10000;const silver=Math.floor(cp/100);cp%=100;return [pp?pp+' pp':null,gp?gp+' gp':null,silver?silver+' sp':null,cp?cp+' cp':null].filter(Boolean).join(' ')||'0 cp'}
+function calculate(){const base=Math.max(0,Number(baseInput.value)||0),roll=Number(rollInput.value),difference=roll-dc;let percentage,quality;
+if(difference<=-5){percentage=-25;quality='Damaged'}else if(difference<0){percentage=0;quality='Poorly Cut'}else{percentage=25+25*Math.floor(difference/5);quality=difference<5?'Well Cut':difference<10?'Fine Cut':difference<15?'Expert Cut':difference<20?'Masterwork Cut':difference<25?'Exquisite Cut':'Legendary Cut'}
+document.getElementById('rollDisplay').textContent=roll;document.getElementById('quality').textContent=quality;const b=document.getElementById('bonus');b.textContent=(percentage>0?'+':'')+percentage+'%';b.style.color=percentage<0?'#f08080':'#72d6a0';document.getElementById('price').textContent=formatCurrency(base*(1+percentage/100))}
+document.getElementById('minus').addEventListener('click',()=>changeDC(-5));document.getElementById('plus').addEventListener('click',()=>changeDC(5));baseInput.addEventListener('input',calculate);rollInput.addEventListener('input',calculate);calculate();
+</script></body></html>
